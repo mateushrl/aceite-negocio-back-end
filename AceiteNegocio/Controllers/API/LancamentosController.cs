@@ -53,5 +53,49 @@ namespace AceiteNegocio.Controllers.API
                 return StatusCode(500, ex.Message);
             }
         }
+
+        [HttpDelete("{idLancamento}")]
+        public async Task<IActionResult> DeletaLancamento(int idLancamento)
+        {
+            try
+            {
+                Lancamento? lancamento = await _context.Lancamentos.FirstOrDefaultAsync(x=>x.Id == idLancamento);
+
+                if (lancamento == null)
+                    return NotFound("Lançamento não encontrado.");
+
+                _context.Lancamentos.Remove(lancamento);
+                await _context.SaveChangesAsync();
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> AtualizaLancamento(LancamentoDTO lancamentoDTO)
+        {
+            try
+            {
+                bool lancamentoExiste = _context.Lancamentos.Any(x => x.Id == lancamentoDTO.Id);
+
+                if (!lancamentoExiste)
+                    return NotFound("Lançamento não encontrado.");
+
+                Lancamento lancamento = _mapper.Map<Lancamento>(lancamentoDTO);
+
+                _context.Lancamentos.Update(lancamento);
+                await _context.SaveChangesAsync();
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
     }
 }
