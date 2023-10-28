@@ -35,7 +35,7 @@ namespace AceiteNegocio.Controllers.API
                 return StatusCode(500, ex.Message);
             }
         }
-
+        
         [HttpPost]
         public async Task<IActionResult> CriaLancamento(LancamentoDTO lancamentoDTO)
         {
