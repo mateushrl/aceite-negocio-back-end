@@ -1,7 +1,11 @@
 ﻿using AceiteNegocio.Context;
+using AceiteNegocio.Models;
+using AceiteNegocio.Models.DTO;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System.Configuration;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace AceiteNegocio
 {
@@ -21,7 +25,16 @@ namespace AceiteNegocio
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
             });
 
+            MapperConfiguration config = ConfiguraMapeamentosAutoMapper();
+            IMapper mapper = config.CreateMapper();
+            services.AddSingleton(mapper);
+
             services.AddControllersWithViews();
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Info { Title = "TodoAPI", Version = "v1" });
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -36,6 +49,13 @@ namespace AceiteNegocio
                 app.UseHsts();
             }
 
+            app.UseSwagger();
+
+            app.UseSwaggerUI(opt =>
+            {
+                opt.SwaggerEndpoint("/swagger/v1/swagger.json", "TodoAPI V1");
+            });
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
@@ -47,6 +67,14 @@ namespace AceiteNegocio
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
+            });
+        }
+        private static MapperConfiguration ConfiguraMapeamentosAutoMapper()
+        {
+            return new MapperConfiguration(cfg =>
+            {
+                cfg.CreateMap<LancamentoDTO, Lancamento>();
+                cfg.CreateMap<Lancamento, LancamentoDTO>();
             });
         }
     }
