@@ -1,6 +1,6 @@
 ﻿using Microsoft.OpenApi.Models;
 
-namespace AceiteNegocio
+namespace AceiteNegocio.Util
 {
     internal class Info : OpenApiInfo
     {

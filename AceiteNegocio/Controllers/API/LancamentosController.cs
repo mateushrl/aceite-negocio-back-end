@@ -5,7 +5,9 @@ using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using System.Text;
+using static AceiteNegocio.Enum.Enum;
 
 namespace AceiteNegocio.Controllers.API
 {
@@ -27,7 +29,8 @@ namespace AceiteNegocio.Controllers.API
         {
             try
             {
-                List<Lancamento> lancamentos = await _context.Lancamentos.ToListAsync();
+                DateTime hoje = DateTime.Today;
+                List<Lancamento> lancamentos = await _context.Lancamentos.Where(x=>x.Data >= hoje.AddDays(-2)).ToListAsync();
                 List<LancamentoDTO> lancamentosDTOs = _mapper.Map<List<LancamentoDTO>>(lancamentos);
                 return Ok(lancamentosDTOs);
             }
@@ -55,7 +58,7 @@ namespace AceiteNegocio.Controllers.API
         }
 
         [HttpDelete("{idLancamento}")]
-        public async Task<IActionResult> DeletaLancamento(int idLancamento)
+        public async Task<IActionResult> CancelaLancamento(int idLancamento)
         {
             try
             {
@@ -64,10 +67,11 @@ namespace AceiteNegocio.Controllers.API
                 if (lancamento == null)
                     return NotFound("Lançamento não encontrado.");
 
-                _context.Lancamentos.Remove(lancamento);
+                lancamento.Status = EStatus.Cancelado;
+                _context.Lancamentos.Update(lancamento);
                 await _context.SaveChangesAsync();
 
-                return Ok();
+                return Ok(lancamento);
             }
             catch (Exception ex)
             {
@@ -97,5 +101,26 @@ namespace AceiteNegocio.Controllers.API
                 return StatusCode(500, ex.Message);
             }
         }
+
+        [HttpGet]
+        public async Task<IActionResult> ObtemLancamentosFiltrados(DateTime dataInicio, DateTime dataFim)
+        {
+            try
+            {
+                List<Lancamento> lancamentos = await _context.Lancamentos
+                    .Where(x => x.Data >= dataInicio && x.Data <= dataFim)
+                    .ToListAsync();
+
+                List<LancamentoDTO> lancamentosDTOs = _mapper.Map<List<LancamentoDTO>>(lancamentos);
+
+                return Ok(lancamentosDTOs);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        
     }
 }

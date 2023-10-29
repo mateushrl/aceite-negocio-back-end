@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System.Configuration;
 using Swashbuckle.AspNetCore.Swagger;
+using AceiteNegocio.Util;
 
 namespace AceiteNegocio
 {
@@ -35,6 +36,7 @@ namespace AceiteNegocio
             {
                 c.SwaggerDoc("v1", new Info { Title = "TodoAPI", Version = "v1" });
             });
+
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -55,6 +57,11 @@ namespace AceiteNegocio
             {
                 opt.SwaggerEndpoint("/swagger/v1/swagger.json", "TodoAPI V1");
             });
+
+            app.UseCors(x => x
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader());
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
